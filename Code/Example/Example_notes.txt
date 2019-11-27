@@ -1,0 +1,98 @@
+The following commands describe an example application of the transmission inference code:
+
+The directory initially contains a single file, Multi_locus_trajectories.out.  It may be valuable to look at the format of this file.
+
+1.  Generate a haplotype reconstruction:
+
+../VeTrans find_haplotypes --traj_in Multi_locus_trajectories.out --C 200
+
+This should produce the following output to screen:
+
+# of haplotypes = 1; BIC = 3391.02
+# of haplotypes = 2; BIC = 1374.44
+# of haplotypes = 3; BIC = 495.757
+# of haplotypes = 4; BIC = 288.657
+# of haplotypes = 5; BIC = 284.521
+No significant BIC improvement: End calculation
+
+A model of four haplotypes is favoured by the model; adding a fifth does not give a large improvement in BIC (a cutoff of a 10 unit improvement is required by the code).
+
+The file Inferred_haplotypes.out is produced, describing the inferred haplotypes and their frequencies.  The code also produces files with names Inference_?_0.out, which describe the optimal solutions found for different numbers of haplotypes.
+
+
+2.  Calculate the variance in the inference:
+
+../VeTrans find_variance  --traj_in Multi_locus_trajectories.out --C 200 --haps_in Inferred_haplotypes.out
+
+This calculates variance matrices for the inferred frequencies pre- and post-transmission.  The results are contained in the files Variances_pre.out and Variances_post.out.
+
+
+3.  Estimate the transmission bottleneck with the explicit likelihood code
+
+../VeTrans calc_bottleneck --haps_in Inferred_haplotypes.out --explicit 1 --max_n 20
+
+This produces the output Likelihoods_exp.out.  The maximum likelihood in this case corresponds to the maximum likelihood bottleneck.  In our case a bottleneck of 5 was inferred by this method; the output of the file is below.   The option max_n is set to 20 as this method can be slow at higher transmission bottlenecks
+
+Likelihoods_exp.out
+1 -1e+80
+2 -456.233
+3 -199.475
+4 -118.093
+5 -76.3918
+6 -90.323
+7 -96.2048
+8 -91.846
+9 -86.8169
+10 -77.8739
+11 -81.4598
+12 -83.6963
+13 -83.036
+14 -82.0442
+15 -79.0103
+16 -80.3924
+17 -81.1104
+18 -81.1637
+19 -80.7134
+20 -79.95
+
+4.  Estimate the transmission bottleneck with the composite method
+
+../VeTrans calc_bottleneck --haps_in Inferred_haplotypes.out 
+
+This produces the output Likelihoods.out. In our case a bottleneck of 17 was inferred by this method, see below
+
+The approximations underlying the composite method works better for higher bottlenecks; a good approach is to begin with the explicit likelihood calculation, then to use the composite approach if a maximum is not found using that method (e.g. if the bottleneck size appears to be high).  Our method produces likelihoods for bottlenecks up to size 1000; the calcuation is very fast even for high N^T.
+
+Note that the absolute values of the likelihoods are not comparable.  This is due to the different approaches of the two methods.
+
+Explicit:
+
+Infer haplotype frequencies and their variances using the "before" and "after" data - Use the "before" sample with the "after" data to calculate a likelihood.
+
+Composite:
+
+Infer haplotype frequencies and their variances using the "before" and "after" data - Use the frequencies inferred for the "before" and "after" samples to calculate a likelihood.
+
+
+Likelihoods.out
+1 -1e+80
+2 -1e+80
+3 -1e+80
+4 1.77268
+5 2.00987
+6 2.18737
+7 2.32369
+8 2.42991
+9 2.5132
+10 2.57847
+11 2.62922
+12 2.66806
+13 2.69694
+14 2.71739
+15 2.73064
+16 2.73767
+17 2.73926
+18 2.73609
+19 2.72871
+20 2.71759
+etc.
