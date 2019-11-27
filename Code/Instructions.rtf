@@ -3,7 +3,7 @@
 \f3\fswiss\fcharset0 Helvetica-Oblique;}
 {\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
 {\*\expandedcolortbl;;\csgray\c0;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\paperw11900\paperh16840\margl1440\margr1440\vieww19280\viewh11400\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
 
 \f0\fs24 \cf0 The MCHapRec code carries out a series of calculations related to the inference of population bottlenecks from viral sequence data.\
@@ -296,51 +296,24 @@ This is OK, but note that the likelihood of observing 14 out of 544 observations
 \
 This seems to be OK for the moment; we are comparing relative likelihoods so the absolute value is not important.\
 \
+Now we try Nt = 2:\
 \
+The possible frequencies are (1,0), (0.5,0.5), and (0.1).  In the likelihood calculation (1,0) again does well, but it is less likely than in the Nt=1 case.  The likelihood for this is worse than the Nt=1 case.\
 \
+We can carry on increasing Nt, to find that the likelihood tails off as we would expect, but at some point this may stop.\
 \
+Here is the issue:\
 \
+Suppose some Nt=N.  The frequencies are (1,0), (1-1/N, 1/N) etc.\
 \
+When we fit (1-1/N,1/N) to the data, we see that it fits the (530,14) split better than does (1,0).  If we were to apply some e.g. 2% cutoff to the frequency data, this would survive, where it would not if the data were all cut down to the single-locus data.  However the noise of the 14 reads skews the bottleneck likelihood, and some large value Nt=N can outperform the correct Nt=1.\
 \
+What we can do about this:\
 \
+One approach is to change the value of \\epsilon.  Instead of 1e-20, we can choose a larger value, then rescale the input within the likelihood.  That is, we convert (1,0) to (1-\\epsilon\'92, \\epsilon\'92).  In our code we implemented this: The value of \\epsilon in the explicit method is set to one tenth of the value of the extinction threshold (i.e. a tenth of 2% in our calculations).  This gets rid of the majority of the problem, particularly where we do not allow the tested values of Nt to become too large.  However, it could bite back at the unwary.\
 \
+An alternative approach would be to somehow filter the multi-locus data.  We could have done this, but it would have been complicated.  There is not a neat solution for this that would be easily explainable.  Therefore we have left the code as is.\
 \
-Within our transmission calculation we remove haplotypes that are inferred to have a post-transmission frequency less than a given extinction threshold.  The frequencies of removed haplotypes are scaled back into the calculation so that the post-transmission frequencies:\
+Users of the explicit method for bottleneck calculation should therefore be careful about interpreting the output and you have been warned\'85 (of course, you will do this, as if you are reading this you are not the sort of person who would ever blindly report values from standard code, but you will appreciate where I am coming from).\
 \
-C 0.999\
-T 0.0006\
-G 0.0004\
-\
-will become:\
-\
-1\
-0\
-0\
-\
-when T and G are removed.\
-\
-This can cause an issue in so far as there may remain multi-locus observations that do not fit this vector particularly well.  If at a specific locus we observe 9900 cases of C and 90 cases of T the following vector may provide a better fit to the vector\
-\
-0.99\
-1\
-0\
-\
-which would be generated as part of the explicit bottleneck calculation for Nt=100.  This could lead to an inference of a large Nt value in a case where all of the haplotypes are wiped out by transmission, where Nt=1 would be the obvious inference.  A few things could be done about this:\
-\
-i) Modify the calculation in the case of the inferred frequencies (1,0,0).  Having frequencies of 0 is not allowed by the Dirichlet multinomial calculation we apply.  Therefore, by default we change the frequencies from 0 to the nominal value 1e-20.  This produces a small likelihood wherever a low number of observations are made from the 1e-20 frequency.\
-\
-An approach of this type is already implements - instead of 1e-20 we set the replacement value to one tenth of the frequency cutoff for extinction.  This leads to an improvement in the situation, but does not fully resolve it.\
-\
-ii) Change the trajectory data.  This can be achieved but has the issue of multiple types of data.  Where single-locus data can easily be processed to remove anything below a threshold (e.g. 2%), with multi-locus data this is not easy.  We may have the variant data:\
-\
-AT	3000\
-GC	30\
-\
-at two positions in the genome, then for the final position\
-\
-T 60\
-C 20\
-\
-In this case, removing GC appears to be reasonable, but removing the C is less clear.\
-\
-Where only the haplotype inferences are processed, or where simple allele frequency data is processes, the situation is simple, but in the explicit method this approach would require a processing of both inferred haplotype frequencies, and of the data.  We believe this cannot be resolved in a straightforwardly understandable way, so do not recommend use of the explicit likelihood method unless you are happy you fully understand this issue (and maybe have your own solution implemented).}
+}
