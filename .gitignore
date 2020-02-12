@@ -1,1 +1,2 @@
-*.o
+Code/*.o
+Code/VeTrans
