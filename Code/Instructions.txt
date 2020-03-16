@@ -1,0 +1,225 @@
+The VeTrans code carries out a series of calculations related to the inference of population bottlenecks from viral sequence data.
+
+Compiling the code
+
+The code is written in C++ and can be compiled with the line
+
+make mcr
+
+Notes on compilation : This code makes use of the gsl library.  More details of this library can be found here: https://www.gnu.org/software/gsl/
+
+You may need to alter the Makefile according to where the GSL library is installed on your machine; the library is included with the flag   -I /usr/local/include/gsl/
+
+
+Running the code
+
+The general format for running this code from command line is:
+
+./VeTrans <Method> <options>
+
+The Method options specifies a calculation to be performed, while the options are specific to the method.
+
+The following methods can be implemented:
+
+Haplotype reconstruction
+
+./VeTrans find_haplotypes
+
+This performs a haplotype reconstruction process in a systematic way, calculating optimal reconstructions with 1 haplotype, 2 haplotypes, 3 haplotypes, and so forth.  The code calculates the haplotypes and their frequencies in each case.  The Bayesian Information Criterion is calculated for each reconstruction.  The code terminates when the reconstruction with n+1 haplotypes fails to do significantly better than the reconstruction with n haplotypes; this is defined as not improving the BIC by more than 10 units.
+
+Notes:
+
+Each reconstruction includes an ‘X’ haplotype, comprising a family of ‘other haplotypes’ not included in the set; the frequency of this haplotype is restricted to no more than 1%.
+
+The haplotypes must be identical for the pre-transmission and post-transmission samples, though their frequencies may change.  Haplotype frequencies may equal zero, for example in the cases where a haplotype is not transmitted and where a haplotype emerges de novo following transmission.
+
+Input files:
+
+This code takes as input the file Multi_locus_trajectories.out, which can be generated using the SAMFIRE software package (Illingworth, Bioinformatics 2016).  The format of this file is illustrated by the following line:
+
+3 124 159 210 ATG 2 0 4 1 26
+
+These values represent:
+
+3 : Number of polymorphic loci described by reads in this set
+124 159 210 : Positions of these loci in the genome
+ATG : Nucleotides reported at these loci
+2: Number of times at which observations were made [Here, before and after transmisison]
+0 4 : Four observations of these nucleotides at time 0 [before transmission]
+1 26 : Twenty-six observations of these nucleotides at time 1 [after transmission]
+
+A further input is given by the value of C, a noise parameter.  This can also be generated using the SAMFIRE software package, and is ideally inferred using independent replicate samples collected from each host.  More information on this statistic is available in another publication (Illingworth et al., Virus Evolution, 2017).
+
+Options: 
+
+--hap_its: Default 1000.  Specifies the number of iterations which the code performs in testing distinct sets of haplotypes.
+
+--hap_term: Default 100.  If this number of consecutive attempts are made to alter a set of haplotypes without finding a previously defined haplotype set, the program terminates.
+
+--freq_its: Default 10,000.  Specifies the number of iterations which the code performs in optimising a set of haplotype frequencies (given a set of haplotypes(
+
+--freq_term: Default 1000.  If this number of consecutive attempts are made to alter a set of haplotype frequencies without improving the likelihood, the frequency optimisation terminates.
+
+--freq_rep: Default 1.  Number of independent attempts to optimise each set of haplotype frequencies.
+
+--traj_in.  Default ‘Multi_locus_trajectories.out’.  File containing the multi-locus haplotype data
+
+--run_time.  Default 1000000 (i.e. this option is not activated).  If set to something other than the default value, the optimisation terminates after this number of seconds, producing the best output achieved during that period of time.
+
+--C : Noise parameter for the data.  The default value is 200.  Indicates the extent to which the sample data is over-dispersed relative to a fixed multinomial distribution.  A value of 1 indicates a uniform distribution, while a value of infinity implies a standard multinomial distribution.
+
+--delta_BIC : This parameterises the statistical test for deciding whether there is sufficient evidence in support of a model with one extra haplotype.  BIC is a statistic which accounts for model complexity, requiring a more complex model to provide a better likelihood than a simpler model by a fixed amount before accepting it; in theory, an improvement in BIC is sufficient to favour the more complex model.  By default, we are more conservative than this, requiring an improvement of at least delta_BIC units of BIC to accept the new model.  Our default parameter of 10 is equivalent to requiring strong evidence in favour of the more complex model.  This flag allows this parameter to be altered to a greater or lesser value.
+
+
+./VeTrans reconstruct_haplotypes
+
+This is very similar to the previous method, but has a little more flexibility.  Instead of inferring optimal haplotypes across a range of haplotype set sizes, this method carries out a single haplotype reconstruction optimisation.
+
+This code has the following options in addition to those of the find_haplotypes method
+
+--n_haps: Default 1.  Indicates the number of haplotypes that are to be inferred from the data, from 1 upwards.
+
+--read_hap: Default 0.  Setting to 1 reads in a set of haplotypes and performs an optimisation only of the frequencies of these haplotypes.
+
+--fullhaps_in.  Default ‘Haps.in’.  File containing the haplotypes to be used in the inference process.  Used when read_hap is set to 1
+
+
+
+Resampling
+
+In our inference of transmission bottlenecks we generate a variance matrix for a set of haplotype frequencies.  The resampling methods are associated with this step of the process.
+
+./VeTrans find_variance
+
+This code generates variance matrices for the pre- and post-transmission haplotype reconstructions.  The approach is as follows:
+
+i) Using the inferred haplotype frequencies, re-sample sets of Multi_locus_trajectories data.
+
+ii) For each re-sampled set of data, infer the optimal frequencies of the haplotypes.  The same haplotypes are used as in the original reconstruction.
+
+iii) Calculate a variance matrix across the sets of inferred haplotype frequencies.  For simplicity the assumption is made that this matrix is diagonal.
+
+Input files:
+
+This code requires the file Multi_locus_trajectories.out as input.  This is used to identify the number of samples to generate over each set of combinations of loci.
+
+It requires a previous haplotype describing haplotypes and their frequencies.  These frequencies are used to generate re-sampled sets of data.
+
+Options: 
+
+--traj_in.  Default ‘Multi_locus_trajectories.out’.  File containing the multi-locus haplotype data
+
+--fullhaps_in.  Default ‘Haps.in’.  File containing the haplotypes to be used in the inference process.  Used when read_hap is set to 1
+
+--C : Noise parameter for the data. 
+
+--var_name.  Default is ‘Variance’.  This gives the pre-fix for the output files from this code i.e. by default Variance_pre.out and Variance_post.out will be generated.
+
+./VeTrans resample
+
+This generates a single resampled version of Multi_locus_trajectories.out.  The sample is placed in the file Multi_locus_trajectories_sample.out.  Options and input are the same as for the variance calculation.
+
+./VeTrans resample_multi
+
+This generates a number of resampled version of Multi_locus_trajectories.out.  The samples are placed in the file Multi_locus_trajectories_sample?.out.  Options and input are the same as for the variance calculation with one further option.
+
+--reps : Number of samples to generate. 
+
+
+
+Bottleneck inference
+
+./VeTrans calc_bottleneck
+
+This infers a maximum likelihood transmission bottleneck given the reconstructed haplotype data.  Data is read in from an inference of haplotype frequencies before and after transmission and analysed using one of two methods described in the paper.
+
+An explicit method generates all the possible outcomes of a transmission event involving N^T viruses, then sums the likelihood of the observation in a weighted manner over all of these possible outcomes.
+
+Note: While the explicit method is fully functional, there is an issue related to its use that can lead to the inference of misleading bottleneck sizes.  This is not an error in the code, but should be understood before relying too much on the output of this method.  Please read the appendix if you plan to use this for anything important.
+
+A compound likelihood method makes a number of approximations to calculate a likelihood for the bottleneck in terms of a normal distribution with calculated mean and variance.  This latter method requires the variance calculation of the previous step, incorporating the uncertainty of the haplotype inference into the bottleneck calculation.
+
+Input files:
+
+The code requires an input of a set of inferred haplotype frequencies.
+
+Options: 
+
+--explicit.  Specifies the explicit likelihood method be used.
+
+--find_max.  Flag to calculate a maximum likelihood bottleneck size.  Outputs to screen.  Default is 0.
+
+--print_like.  Flag to output a file reporting the likelihood for each bottleneck size.  Default is 1.  The file is called either Likelihoods.out in the case of the compound likelihood method, or Likelihoods_exp.out in the case of the explicit likelihood method.
+
+--growth.  Growth rate of the virus (factor increase per generation).  Default is 22-fold growth.
+
+--fullhaps_in.  Default ‘Haps.in’.  File containing the haplotypes to be used in the inference process.  Used when read_hap is set to 1
+
+--C : Noise parameter for the data. 
+
+--var_name.  Default is ‘Variance’.  This gives the pre-fix for the output files from this code i.e. by default Variance_pre.out and Variance_post.out will be generated.
+
+./VeTrans combine_likelihoods
+
+This identifies a maximum likelihood for a transmission event involving several genes.  The assumption is made that data for each gene is contained within a single directory, each directory containing a file of the format Likelihoods.out.
+
+Inputs
+
+The names of directories should be listed in the file Genes.in
+
+Options
+
+--like_name.  Name of the likelihood file from which the likelihoods will be read.  Require a file of this name in each directory.
+
+
+
+Appendix: Issues with the explicit method of evaluation
+
+There is a potential issue with the explicit bottleneck method related to noise in multi-locus haplotype data.  Some awareness of this should be had before applying it to new systems.
+
+To understand this, consider a case in which the transmission involved a single viral particle, but in which there is some noise in the sample data.  Given single-locus data, it is easy to remove noise, for example, by removing from consideration all variants with a frequency of less than a cutoff frequency.  However, in multi-locus data this is not so easy.
+
+Here is some example data describing one- and two-locus data from our system.
+
+Loci		Alleles	Number before		Number after
+1,2		CT		650				530
+1,2		AG		380				14
+1		C		7416				8643
+1		A		4012				23
+2		T		9472				10238
+2		G		3485				35
+
+The data represent a case where the CT genotype is preserved across transmission, but the AG genotype dies out.  There is some sequence noise.
+
+We now attempt to fit a model to the data.  Our haplotypes are CT and AG.  Using a multinomial approach, we try to fit the data.
+
+Nt = 1:
+
+The two possible outcomes for the frequencies are (1,0) and (0,1) for CT and AG respectively.  The first fits the data very well, but the second does not.  As such we get a good likelihood for this bottleneck size via the (1,0) outcome.
+
+However: We note that in our likelihood (1,0) is not a viable option for the frequencies: Setting a frequency to zero causes a problem.  We actually use the input (1,\epsilon) for some small number, by default equal to 10^{-20}.  
+
+This is OK, but note that the likelihood of observing 14 out of 544 observations at such a small frequency is very small.  Our likelihoods in general are quite low.  
+
+This seems to be OK for the moment; we are comparing relative likelihoods so the absolute value is not important.
+
+Now we try Nt = 2:
+
+The possible frequencies are (1,0), (0.5,0.5), and (0.1).  In the likelihood calculation (1,0) again does well, but it is less likely than in the Nt=1 case.  The likelihood for this is worse than the Nt=1 case.
+
+We can carry on increasing Nt, to find that the likelihood tails off as we would expect, but at some point this may stop.
+
+Here is the issue:
+
+Suppose some Nt=N.  The frequencies are (1,0), (1-1/N, 1/N) etc.
+
+When we fit (1-1/N,1/N) to the data, we see that it fits the (530,14) split better than does (1,0).  If we were to apply some e.g. 2% cutoff to the frequency data, this would survive, where it would not if the data were all cut down to the single-locus data.  However the noise of the 14 reads skews the bottleneck likelihood, and some large value Nt=N can outperform the correct Nt=1.
+
+What we can do about this:
+
+One approach is to change the value of \epsilon.  Instead of 1e-20, we can choose a larger value, then rescale the input within the likelihood.  That is, we convert (1,0) to (1-\epsilon’, \epsilon’).  In our code we implemented this: The value of \epsilon in the explicit method is set to one tenth of the value of the extinction threshold (i.e. a tenth of 2% in our calculations).  This gets rid of the majority of the problem, particularly where we do not allow the tested values of Nt to become too large.  However, it could bite back at the unwary.
+
+An alternative approach would be to somehow filter the multi-locus data.  We could have done this, but it would have been complicated.  There is not a neat solution for this that would be easily explainable.  Therefore we have left the code as is.
+
+Users of the explicit method for bottleneck calculation should therefore be careful about interpreting the output and you have been warned… (of course, you will do this, as if you are reading this you are not the sort of person who would ever blindly report values from standard code, but you will appreciate where I am coming from).
+
