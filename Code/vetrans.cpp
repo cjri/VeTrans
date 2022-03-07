@@ -40,6 +40,7 @@ int main(int argc, const char **argv) {
 	vector<haplo> haplotypes;
 	vector<double> pre_freqs;
 	vector<double> post_freqs;
+    vector< vector<double> > multi_freqs;
 	double best_bic;
 	
 	if (method.compare("reconstruct_haplotypes")==0) {
@@ -49,6 +50,14 @@ int main(int argc, const char **argv) {
 		//Output from ReconstructHaplotypes
 		OutputReconstructHaplotypes(haplotypes,pre_freqs,post_freqs,best_bic);
 
+    } else if (method.compare("reconstruct_haplotypes_multi")==0) {
+        cout << "Here now\n";
+        
+        //Designed for more general haplotype reconstruction
+        ReconstructHaplotypesMulti (p,best_bic,haplotypes,multi_freqs);
+
+        OutputReconstructHaplotypesMulti(p,haplotypes,multi_freqs,best_bic);
+        
 	} else if (method.compare("find_haplotypes")==0) {
 		vector<haplo> haplotypes_store;
 		vector<double> pre_freqs_store;
@@ -80,6 +89,39 @@ int main(int argc, const char **argv) {
 				done=1;
 			}
 		}
+        
+    } else if (method.compare("find_haplotypes_multi")==0) {
+        vector<haplo> haplotypes_store;
+        vector< vector<double> > multi_freqs_store;
+
+        p.n_haps=1;
+        double opt_bic=1e10;
+        int done=0;
+        while (done==0) {
+            ReconstructHaplotypesMulti (p,best_bic,haplotypes,multi_freqs);
+            cout << "# of haplotypes = " << p.n_haps << "; BIC = " << best_bic << "\n";
+            if (best_bic<opt_bic-p.delta_bic) {
+                opt_bic=best_bic;
+                p.n_haps++;
+                haplotypes_store=haplotypes;
+                multi_freqs_store=multi_freqs;
+            } else {
+                cout << "No significant BIC improvement: End calculation\n";
+                ofstream out_file;
+                out_file.open("Inferred_haplotypes.out");
+                //out_file << "BIC " << opt_bic << "\n";
+                for (int i=0;i<haplotypes_store.size();i++) {
+                    for (int j=0;j<haplotypes_store[i].seq.size();j++) {
+                        out_file << haplotypes_store[i].seq[j];
+                    }
+                    for (int s=0;s<p.n_samples;s++) {
+                        out_file << " " << multi_freqs[s][i];
+                    }
+                }
+                done=1;
+            }
+        }
+
 	
 	} else if (method.compare("resample")==0) {
 		//Randomly resamples Multi_locus_trajectories.out using the inferred haplotypes.  Output to Multi_locus_trajectories_sample.out

@@ -9,6 +9,7 @@ void GetOptions (run_params& p, int argc, const char **argv) {
 	p.seed=atoi(argv[1]);
 	p.c=200;
 	p.n_haps=1;
+    p.n_samples=2;
 	p.hap_its=1000;
 	p.hap_term=100;
 	p.freq_its=10000;
@@ -39,7 +40,10 @@ void GetOptions (run_params& p, int argc, const char **argv) {
 		if (p_switch.compare("--n_haps")==0) {
 			x++;
 			p.n_haps=atoi(argv[x]);
-		} else if (p_switch.compare("--hap_its")==0) {
+        } else if (p_switch.compare("--n_samples")==0) {
+            x++;
+            p.n_samples=atoi(argv[x]);
+        } else if (p_switch.compare("--hap_its")==0) {
 			x++;
 			p.n_haps=atoi(argv[x]);
 		} else if (p_switch.compare("--hap_term")==0) {
@@ -159,14 +163,14 @@ void GetVariantData (run_params p, vector<mhap>& haps) {
 		int t=n;
 		int tot=0;
 		for (int j=0;j<t;j++) {
-			//Pre-transmission sample
+			//Time of sample
 			if (!(in_file >> n)) break;
 			m.times.push_back(n);
 			if (p.verb==1) {
 				cout << n << " ";
 			}
 
-			//Post-transmission sample
+			//Observations in sample
 			if (!(in_file >> n)) break;
 			m.obs.push_back(n);
 			if (p.verb==1) {
@@ -183,6 +187,71 @@ void GetVariantData (run_params p, vector<mhap>& haps) {
 		haps.push_back(m);
 	}
 }
+
+void GetVariantDataMulti (run_params p, vector<mhap>& haps) {
+    string file=p.traj_in;
+    //string file="../Data/"+gene+"/Multi_locus_trajectories.out";
+    if (p.verb==1) {
+        cout << "Read partial haplotype data from " << p.traj_in << "\n";
+    }
+    ifstream in_file;
+    in_file.open(file.c_str());
+    int n;
+    string s;
+    for (int i=0;i<1000000;i++) {
+        mhap m;
+        if (!(in_file >> n)) break;
+        if (p.verb==1) {
+            cout << n << " ";
+        }
+        m.nvar=n;
+        int k=n;
+        for (int j=0;j<k;j++) {
+            if (!(in_file >> n)) break;
+            m.loci.push_back(n);
+            if (p.verb==1) {
+                cout << n << " ";
+            }
+        }
+        if (!(in_file >> s)) break;
+        m.st=s;
+        if (p.verb==1) {
+            cout << s << " ";
+        }
+        if (!(in_file >> n)) break;
+        if (p.verb==1) {
+            cout << n << " ";
+        }
+
+        int t=n;
+        //cout << "T is " << t << "\n";
+        int tot=0;
+        for (int j=0;j<t;j++) {
+            //Time of sample
+            if (!(in_file >> n)) break;
+            m.times.push_back(n);
+            if (p.verb==1) {
+                cout << "T " << n << " ";
+            }
+
+            //Observations in sample
+            if (!(in_file >> n)) break;
+            m.obs.push_back(n);
+            if (p.verb==1) {
+                cout << "N " << n << " ";
+            }
+
+            tot=tot+n;
+        }
+        if (p.verb==1) {
+            cout << "\n";
+        }
+
+        m.tot=tot;
+        haps.push_back(m);
+    }
+}
+
 
 void GetFullHaplotypes (run_params p, vector<haplo>& full_haps) {
 	ifstream hap_file;
@@ -390,3 +459,18 @@ void OutputReconstructHaplotypes (vector<haplo> haplotypes,vector<double> pre_fr
 		cout << " " << pre_freqs[i] << " " << post_freqs[i] << "\n";
 	}
 }
+
+void OutputReconstructHaplotypesMulti (run_params p, vector<haplo> haplotypes, vector< vector<double> >& multi_freqs, double best_bic) {
+    cout << "Result of calculation\n";
+    cout << "BIC " << best_bic << "\n";
+    for (int i=0;i<haplotypes.size();i++) {
+        for (int j=0;j<haplotypes[i].seq.size();j++) {
+            cout << haplotypes[i].seq[j];
+        }
+        for (int s=0;s<p.n_samples;s++) {
+            cout << " " << multi_freqs[s][i];
+        }
+        cout << "\n";
+    }
+}
+

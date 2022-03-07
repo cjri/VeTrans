@@ -14,6 +14,7 @@ struct run_params {
 	int seed; //Random seed.  Get from command line
 	double c; //Overdispersion parameter
 	int n_haps; //Number of haplotypes to include in model.  Default is 1.
+    int n_samples; //Number of samples in multi-locus trajectory file.
 	int hap_its; //Number of sets of haplotypes to consider in optimisation.  Default is 1000.
 	int hap_term; //Number of consecutive changes to a haplotype not giving a previously observed set of haplotypes before terminating
 	int freq_its; //Number of iterations to calculate over in frequency optimisation. Default is 10000.
@@ -80,6 +81,7 @@ struct haplo {
 void GetOptions (run_params& p, int argc, const char **argv);
 
 int ReconstructHaplotypes (run_params p, double& best_bic, vector<haplo>& haplotypes, vector<double>& pre_freqs, vector<double>& post_freqs);
+int ReconstructHaplotypesMulti (run_params p, double& best_bic, vector<haplo>& haplotypes, vector< vector<double> >& multi_freqs);
 
 
 //get_files

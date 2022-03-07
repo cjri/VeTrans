@@ -790,8 +790,8 @@ double DirichletMultiCalc (run_params p, int N, double c, vector<int>& obs, vect
 		}
 	}
 	/*cout << "Fact_store size: " << fact_store.size() << "\n";
-	cout << "N : " << N << "\n";
-	cout << "Obs\n";
+	cout << "N : " << N << "\n";*/
+	/*cout << "Obs\n";
 	 for (unsigned int i=0;i<obs.size();i++) {
 	 cout << obs[i] << " ";
 	 }
@@ -827,8 +827,8 @@ double DirichletMultiCalc (run_params p, int N, double c, vector<int>& obs, vect
 		}
 		bin=bin-gsl_sf_lngamma(a);
 	}
-	//	cout << "L " << bin << "\n";
-	//	cout << "\n";
+//		cout << "L " << bin << "\n";
+//		cout << "\n";
 	return(bin);
 }
 
