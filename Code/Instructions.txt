@@ -71,6 +71,13 @@ Options:
 --delta_BIC : This parameterises the statistical test for deciding whether there is sufficient evidence in support of a model with one extra haplotype.  BIC is a statistic which accounts for model complexity, requiring a more complex model to provide a better likelihood than a simpler model by a fixed amount before accepting it; in theory, an improvement in BIC is sufficient to favour the more complex model.  By default, we are more conservative than this, requiring an improvement of at least delta_BIC units of BIC to accept the new model.  Our default parameter of 10 is equivalent to requiring strong evidence in favour of the more complex model.  This flag allows this parameter to be altered to a greater or lesser value.
 
 
+./VeTrans find_haplotypes_multi
+
+This is a generalisation of the find_haplotypes code.  It is identical to the main code but allows for the use of multiple samples from the same individual, thereby providing a method for haplotype reconstruction.  All options are identical to those in find_haplotypes with the exception of a new flag to specify the number of samples:
+
+--n_samples.  Default 2.  Number of samples from the same individual
+
+
 ./VeTrans reconstruct_haplotypes
 
 This is very similar to the previous method, but has a little more flexibility.  Instead of inferring optimal haplotypes across a range of haplotype set sizes, this method carries out a single haplotype reconstruction optimisation.
@@ -83,6 +90,12 @@ This code has the following options in addition to those of the find_haplotypes 
 
 --fullhaps_in.  Default ‘Haps.in’.  File containing the haplotypes to be used in the inference process.  Used when read_hap is set to 1
 
+
+./VeTrans reconstruct_haplotypes_multi
+
+This is a generaliation of reconstruct_haplotypes allowing for multiple samples from the same individual.
+
+--n_samples.  Default 2.  Number of samples from the same individual
 
 
 Resampling
