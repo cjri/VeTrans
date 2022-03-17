@@ -301,6 +301,7 @@ void ConstructHaplotypeDeNovo (haplo& hap, vector<int>& loci, vector<mhap>& hap_
 }
 
 void ConstructHaplotypeX (haplo& hap, vector<int>& loci) {
+    cout << "Do construction\n";
 	for (int i=0;i<loci.size();i++) {
 		hap.seq.push_back('X');
 	}
@@ -804,6 +805,15 @@ double DirichletMultiCalc (run_params p, int N, double c, vector<int>& obs, vect
 	 if (obs.size()!=inf.size()) {
 	 cout << "Size match error " << obs.size() << " " << inf.size() << "\n";
 	 }*/
+    //Check
+    /*double tot=0;
+    for (int i=0;i<inf.size();i++) {
+        tot=tot+inf[i];
+    }
+    if (abs(1-tot)>1e-9) {
+        cout << "Error\n";
+    }*/
+    
 	if (N>0) {
 		bin=fact_store[N];
 		for (unsigned int i=0;i<obs.size();i++) {
@@ -827,8 +837,6 @@ double DirichletMultiCalc (run_params p, int N, double c, vector<int>& obs, vect
 		}
 		bin=bin-gsl_sf_lngamma(a);
 	}
-//		cout << "L " << bin << "\n";
-//		cout << "\n";
 	return(bin);
 }
 

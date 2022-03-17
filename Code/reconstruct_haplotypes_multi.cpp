@@ -96,11 +96,12 @@ int ReconstructHaplotypesMulti (run_params p, double& best_bic, vector<haplo>& h
 		//Read in haplotype set
 		GetFullHaplotypes(p,full_haps);
 
-		//Add an X haplotype if none such exists
+        //Add an X haplotype if none such exists
 		CheckXHap (loci,full_haps);
-
+        
 		//Optimise full haplotype frequencies
-		OptimiseFrequenciesFixedFullHapsMulti (p,C,multi_freqs,full_haps,Nmulti,fact_store,hap_data_sets,rgen);
+        
+		OptimiseFrequenciesFixedFullHapsMulti (p,C,best_bic,multi_freqs,full_haps,Nmulti,fact_store,hap_data_sets,rgen);
 		haplotypes=full_haps;
 		return 0;
 	}
@@ -390,7 +391,7 @@ void OptimiseFrequenciesMulti (run_params p, vector<double>& lL, double C, vecto
             int xmatch=0;
             int indexj=0;
             for (int j=0;j<hap_data_sets[i].size();j++) { //Partial haplotypes in subset
-                //cout << "PH " << j << "\n";
+                //cout << "Set " << i <<  " PH " << j << "\n";
                 if (hap_data_sets[i][j].match[0]==full_haps.size()-1) { //Corresponds to unobserved haplotype namely X
                     if (xmatch==0) { //Only need to do this once
                         for (int s=0;s<p.n_samples;s++) {
@@ -455,12 +456,12 @@ void FindBestRepMulti (run_params& p, double& lL_tot, vector< vector<double> >& 
     }
 }
 
-void OptimiseFrequenciesFixedFullHapsMulti (run_params p, double C, vector< vector<double> >& multi_freqs, vector<haplo>& full_haps, vector< vector<int> >& Nmulti, vector<double>& fact_store, vector< vector<mhap> >& hap_data_sets, gsl_rng *rgen) {
+void OptimiseFrequenciesFixedFullHapsMulti (run_params p, double C, double& best_bic, vector< vector<double> >& multi_freqs, vector<haplo>& full_haps, vector< vector<int> >& Nmulti, vector<double>& fact_store, vector< vector<mhap> >& hap_data_sets, gsl_rng *rgen) {
     //Full optimisation for case in which we read in a fixed set of haplotypes
     MatchFullHapsSplit(hap_data_sets,full_haps);
     vector< vector< vector<double> > > multi_store;
+    vector< vector<double> > temp;
     for (int s=0;s<p.n_samples;s++) {
-        vector< vector<double> > temp;
         multi_store.push_back(temp);
     }
     vector<double> logs_store;
@@ -479,9 +480,12 @@ void OptimiseFrequenciesFixedFullHapsMulti (run_params p, double C, vector< vect
             CheckNoiseFreq(hap_freqs_multi[s]);
         }
 
-        
         //Match observations to full haplotype frequencies.  Here the last obs combines all of the 'noise' observations
         vector< vector< vector<int> > > obs_freqs_multi;
+        for (int s=0;s<p.n_samples;s++) {
+            vector< vector<int> > ofreq;
+            obs_freqs_multi.push_back(ofreq);
+        }
         ConstructObservationsXMulti (p,hap_data_sets,full_haps,obs_freqs_multi);
 
         //Optimise frequencies to fit to data
@@ -507,6 +511,7 @@ void OptimiseFrequenciesFixedFullHapsMulti (run_params p, double C, vector< vect
     if (p.verb==1) {
         cout << "Final BIC " << bic << "\n";
     }
+    best_bic=bic;
     //Here in the Multi conversion.
 
     if (p.suppress_output==0) {

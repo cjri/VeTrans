@@ -41,6 +41,10 @@ int main(int argc, const char **argv) {
 	vector<double> pre_freqs;
 	vector<double> post_freqs;
     vector< vector<double> > multi_freqs;
+    vector<double> mf;
+    for (int s=0;s<p.n_samples;s++) {
+        multi_freqs.push_back(mf);
+    }
 	double best_bic;
 	
 	if (method.compare("reconstruct_haplotypes")==0) {
