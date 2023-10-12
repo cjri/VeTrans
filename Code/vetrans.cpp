@@ -67,7 +67,6 @@ int main(int argc, const char **argv) {
 		vector<double> pre_freqs_store;
 		vector<double> post_freqs_store;
 
-		p.n_haps=1;
 		double opt_bic=1e10;
 		int done=0;
 		while (done==0) {
