@@ -6,7 +6,6 @@
 void GetOptions (run_params& p, int argc, const char **argv) {
 	string p_switch;
 	p.seed=(int) time(NULL);
-	p.seed=atoi(argv[1]);
 	p.c=200;
 	p.n_haps=1;
     p.n_samples=2;
@@ -64,6 +63,7 @@ void GetOptions (run_params& p, int argc, const char **argv) {
 		} else if (p_switch.compare("--explicit")==0) {
 			x++;
 			p.exp_like=atoi(argv[x]);
+            p.like_name="Likelihoods_exp.out";
 		} else if (p_switch.compare("--reps")==0) {
 			x++;
 			p.sample_reps=atoi(argv[x]);
@@ -76,6 +76,9 @@ void GetOptions (run_params& p, int argc, const char **argv) {
 		} else if (p_switch.compare("--max_n")==0) {
 			x++;
 			p.max_n=atoi(argv[x]);
+        } else if (p_switch.compare("--seed")==0) {
+            x++;
+            p.seed=atoi(argv[x]);
 		} else if (p_switch.compare("--find_max")==0) {
 			x++;
 			p.find_max=atoi(argv[x]);
@@ -273,6 +276,9 @@ void GetFullHaplotypesFreq (run_params p, vector<haplo>& full_haps, vector<doubl
 	ifstream hap_file;
 	//cout << "Hap in " << p.hap_in << "\n";
 	hap_file.open(p.fullhap_in);
+    if (p.verb==1) {
+        cout << "Read from file " << p.fullhap_in << "\n";
+    }
 	string fullhap;
 	double freq1;
 	double freq2;
@@ -280,6 +286,9 @@ void GetFullHaplotypesFreq (run_params p, vector<haplo>& full_haps, vector<doubl
 		if (!(hap_file >> fullhap)) break;
 		haplo h;
 		h.st=fullhap;
+        if (p.verb==1) {
+            cout << h.st << " ";
+        }
 		for (int i=0;i<fullhap.length();i++) {
 			h.seq.push_back(fullhap[i]);
 		}
@@ -288,6 +297,10 @@ void GetFullHaplotypesFreq (run_params p, vector<haplo>& full_haps, vector<doubl
 		if (!(hap_file >> freq2)) break;
 		freq_pre.push_back(freq1);
 		freq_post.push_back(freq2);
+        if (p.verb==1) {
+            cout << freq1 << " " << freq2 << "\n";
+        }
+
 	}
 	if (p.verb==1) {
 		for (int i=0;i<full_haps.size();i++) {
@@ -357,7 +370,7 @@ void PrintVariances (run_params p, vector<double>& pre_var, vector<double>& post
 
 void GetLikelihoods (run_params p, vector< vector<double> >& likelihoods) {
 	ifstream gene_file;
-	gene_file.open("Genes.in");
+	gene_file.open("Gene_list.in");
 	vector<string> genes;
 	string s;
 	for (int i=0;i<1000000;i++) {
@@ -367,7 +380,10 @@ void GetLikelihoods (run_params p, vector< vector<double> >& likelihoods) {
 	ifstream like_file;
 	for (int i=0;i<genes.size();i++) {
 		string name=genes[i]+"/"+string(p.like_name);
-		like_file.open(name.c_str());
+        if (p.verb==1) {
+            cout << "Reading file " << name << "\n";
+        }
+ 		like_file.open(name.c_str());
 		double x;
 		int n;
 		vector<double> like;

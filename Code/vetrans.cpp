@@ -25,7 +25,8 @@ int main(int argc, const char **argv) {
 		cout << "  reconstruct_haplotypes: Does haplotype reconstruction\n";
 		return 0;
 	}
-	
+    cout << argv[1] << "\n";
+    
 	run_params p;
 	GetOptions(p,argc,argv);
 	if (p.err==1) {
@@ -55,7 +56,6 @@ int main(int argc, const char **argv) {
 		OutputReconstructHaplotypes(haplotypes,pre_freqs,post_freqs,best_bic);
 
     } else if (method.compare("reconstruct_haplotypes_multi")==0) {
-        cout << "Here now\n";
         
         //Designed for more general haplotype reconstruction
         ReconstructHaplotypesMulti (p,best_bic,haplotypes,multi_freqs);
@@ -67,7 +67,6 @@ int main(int argc, const char **argv) {
 		vector<double> pre_freqs_store;
 		vector<double> post_freqs_store;
 
-		p.n_haps=1;
 		double opt_bic=1e10;
 		int done=0;
 		while (done==0) {
@@ -168,6 +167,7 @@ int main(int argc, const char **argv) {
 		PrintVariances(p,pre_var,post_var);
 		
 	} else if (method.compare("calc_bottleneck")==0) {
+        cout << "Calculate bottleneck\n";
 		CalcBottleneck(p);
 		
 	} else if (method.compare("combine_likelihoods")==0) {
