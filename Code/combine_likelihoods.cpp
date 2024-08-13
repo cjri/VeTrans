@@ -21,6 +21,7 @@ void FindCombinedLikelihood (run_params p, vector< vector<double> >& likelihoods
 	}
 	double maxL=-1e80;
 	int maxN=-1;
+    cout << likelihoods.size() << "\n" << likelihoods[0].size() << "\n";
 	for (int i=0;i<likelihoods[0].size();i++) {
 		double tot=0;
 		for (int j=0;j<likelihoods.size();j++) {

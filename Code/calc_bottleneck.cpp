@@ -13,6 +13,9 @@ int CalcBottleneck(run_params p) {
 	vector<int> Npre;
 	vector<int> Npost;
 	if (p.exp_like==1) {
+        if (p.verb==1) {
+            cout << "Explicit method\n";
+        }
 		SetupExplicit1(p,Npre,Npost,hap_data_sets);
 	}
 	
@@ -69,7 +72,9 @@ int CalcBottleneck(run_params p) {
 			like_file.open("Likelihoods.out");
 		}
 		for (int Nt=1;Nt<=p.max_n;Nt++) {
-			//cout << "Nt " << Nt << "\n";
+            if (p.verb==1) {
+                cout << "Nt " << Nt;
+            }
 			if (p.exp_like==1) {
 				vector< vector<int> > list;
 				if (p.max_n==21) {
@@ -80,8 +85,16 @@ int CalcBottleneck(run_params p) {
 				//cout << "Nt " << Nt << " " << log(lL) << "\n";
 				if (isinf(log(lL))) {
 					like_file << Nt << " " << -1e80 << "\n";
+                    if (p.verb==1) {
+                        cout << " " << -1e80 << "\n";
+                    }
+
 				} else {
 					like_file << Nt << " " << log(lL) << "\n";
+                    if (p.verb==1) {
+                        cout << " " << log(lL) << "\n";
+                    }
+
 				}
 			} else {
 				if (full_haps.size()<=1) {
@@ -90,12 +103,21 @@ int CalcBottleneck(run_params p) {
 						cout << "Error: Require at least two haplotypes for compound likelihood to work\n";
 					}
 					like_file << Nt << " " << 0 << "\n";
+                    if (p.verb==1) {
+                        cout << " " << 0 << "\n";
+                    }
+
 				} else {
 					//Get approximate likelihood
 					double L=FindCompoundLikelihood (p,Nt,dim,freq_pre,freq_post,var_pre,var_post);
 					like_file << Nt << " " << L << "\n";
+                    if (p.verb==1) {
+                        cout << " " << L << "\n";
+                    }
+
 				}
 			}
+
 		}
 	}
 	

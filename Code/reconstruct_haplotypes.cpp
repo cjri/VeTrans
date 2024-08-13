@@ -276,6 +276,16 @@ void ConstructHaplotypeSet (int n_haps, vector<int>& loci, vector<mhap>& hap_dat
 	full_haps.push_back(hapx);
 }
 
+void ConstructHaplotypeSingle (vector<int>& loci, vector<mhap>& hap_data, vector<haplo>& full_haps, gsl_rng *rgen) {
+    haplo hap;
+    ConstructHaplotypeDeNovo (hap,loci,hap_data,rgen);
+    full_haps.push_back(hap);
+    haplo hapx;
+    ConstructHaplotypeX(hapx,loci);
+    full_haps.push_back(hapx);
+}
+
+
 
 void ConstructHaplotypeDeNovo (haplo& hap, vector<int>& loci, vector<mhap>& hap_data, gsl_rng *rgen) {
 	//Start with all X then randomly replace with haplotypes from data
@@ -329,6 +339,30 @@ void CheckUniqueHaplotypes (int& check, vector<mhap>& hap_data, vector<haplo>& f
 			}
 		}
 	}
+}
+
+void CheckUniqueHaplotypesSingle (int& check, vector<mhap>& hap_data, vector<haplo>& full_haps, gsl_rng *rgen) {
+    //Ensure that all of the haplotypes are different from one another.  Just change the last one
+    check=0;
+    for (int i=1;i<full_haps.size();i++) {
+        int uniq=0;
+        while (uniq==0&&check<1001) {
+            check++;
+            uniq=1;
+            for (int j=0;j<i;j++) {
+                if (full_haps[j].seq==full_haps[i].seq) {
+                    uniq=0;
+                }
+            }
+            if (uniq==0) {
+                //Make random change to  last haplotype
+                int h=hap_data.size()-1;
+                for (int j=0;j<hap_data[h].n_loci.size();j++) {
+                    full_haps[i].seq[hap_data[h].n_loci[j]]=hap_data[h].st[j];
+                }
+            }
+        }
+    }
 }
 
 

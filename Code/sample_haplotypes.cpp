@@ -8,7 +8,9 @@
 int SampleData (run_params p, vector< vector< vector<mhap> > >& all_hap_data_sets) {
 
 	double C=p.c;
-	
+    if (p.verb==1) {
+        cout << "Value of C " << C << "\n";
+    }
 	//Initialise random number generator
 	gsl_rng_env_setup();
 	gsl_rng *rgen = gsl_rng_alloc (gsl_rng_taus);

@@ -22,6 +22,7 @@ struct run_params {
 	int freq_rep; //Number of independent frequency optimisations to run for each set of full haplotypes.  Default is 1.
 	int run_time; //Allows the code to be run for a specific length of time.  Default is 1000000 seconds.  Setting this fixes hap_its to be large.
 	int read_hap; //Read in a fixed set of haplotypes rather than finding an optimal set
+    int read_prev; //Read in a previous set of haplotypes as part of a starting point for a new optimisation
 	int print_sample; //Flag for resampling code. Outputs resample data
 	int sample_reps; //Number of samples to conduct
 	int suppress_output; //Anti-verbose output
@@ -39,6 +40,7 @@ struct run_params {
 	const char* var_name; //Prefix for variant data
 	const char* like_name; //Prefix for variant data
 	const char* fullhap_in; //Name of input file containing haplotypes
+    const char* prev_in; //Name of input file containing previous haplotypes
 	int verb; //Verbose output
 	int err; //Error flag
 };

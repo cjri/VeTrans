@@ -88,7 +88,18 @@ This code has the following options in addition to those of the find_haplotypes 
 
 --read_hap: Default 0.  Setting to 1 reads in a set of haplotypes and performs an optimisation only of the frequencies of these haplotypes.
 
---fullhaps_in.  Default ‘Haps.in’.  File containing the haplotypes to be used in the inference process.  Used when read_hap is set to 1
+--fullhaps_in: Default ‘Haps.in’.  File containing the haplotypes to be used in the inference process.  Used when read_hap is set to 1.
+
+--read_previous: Default 0.  Setting to 1 reads in n_haps - 1 haplotypes generated from a previous run.  A final haplotype is generated to add to this set.
+	Note 1: This provides a further test for BIC convergence.  With more complex datasets, haplotype inference may not find the global maximum likelihood.
+	Note 2: The script cut_inference.sh can be used to generate the input into this option.
+
+	e.g. ./cut_inference.sh Inference_7_0.out
+
+	will generate the file Previous_haps.in suited for this purpose
+
+--prev_in: Default 'Previous_haps.in.  File containing the haplotypes from the previous inference run.
+
 
 
 ./VeTrans reconstruct_haplotypes_multi

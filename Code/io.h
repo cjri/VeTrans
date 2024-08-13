@@ -13,6 +13,7 @@ void GetOptions (run_params& p, int argc, const char **argv);
 void GetVariantData (run_params p, vector<mhap>& haps);
 void GetVariantDataMulti (run_params p, vector<mhap>& haps);
 void GetFullHaplotypes (run_params p, vector<haplo>& full_haps);
+void GetPrevHaplotypes (run_params p, vector<haplo>& full_haps);
 void GetFullHaplotypesFreq (run_params p, vector<haplo>& full_haps, vector<double>& freq_pre, vector<double>& freq_post);
 void PrintResampleMulti (vector< vector< vector<mhap> > >& all_hap_data_sets);
 void PrintSample (int i, vector<mhap>& hap_data);

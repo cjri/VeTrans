@@ -7,6 +7,9 @@
 
 //Code to run the explicit likelihood
 void SetupExplicit1 (run_params& p, vector<int>& Npre, vector<int>& Npost, vector< vector<mhap> >& hap_data_sets) {
+    if (p.verb==1) {
+        cout << "Set up for explicit calcluation\n";
+    }
 	p.null_freq=p.extinct/10;
 	//Need the multi-locus data to run the explicit likelihood calculation
 	vector<mhap> hap_data;

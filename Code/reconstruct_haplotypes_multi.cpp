@@ -107,14 +107,29 @@ int ReconstructHaplotypesMulti (run_params p, double& best_bic, vector<haplo>& h
 	}
 	
 	//Generate initial set of full haplotypes - begin full optimisation process
-	ConstructHaplotypeSet(p.n_haps,loci,hap_data,full_haps,rgen);
-	//Check all haplotypes are different
-	int check=0;
-	CheckUniqueHaplotypes(check,hap_data,full_haps,rgen);
-	if (check>=1000) {
-		cout << "Can't create sufficient haplotypes.  Terminating...\n";
-		return 0;
-	}
+    if (p.read_prev==0) {
+        ConstructHaplotypeSet(p.n_haps,loci,hap_data,full_haps,rgen);
+        int check=0;
+        //Check all haplotypes are different
+
+        CheckUniqueHaplotypes(check,hap_data,full_haps,rgen);
+        if (check>=1000) {
+            cout << "Can't create sufficient haplotypes.  Terminating...\n";
+            return 0;
+        }
+    } else {
+        cout << "Get previous haplotypes\n";
+        GetPrevHaplotypes (p, full_haps);
+        //Construct next haplotype and the X haplotype
+        ConstructHaplotypeSingle (loci,hap_data,full_haps,rgen);
+        int check=0;
+        //Check all haplotypes are different.  Preserve all but last haplotype
+        CheckUniqueHaplotypesSingle(check,hap_data,full_haps,rgen);
+        if (check>=1000) {
+            cout << "Can't create sufficient haplotypes.  Terminating...\n";
+            return 0;
+        }
+    }
 	if (p.verb==1) {
 		cout << "Full haps\n";
 		for (int i=0;i<full_haps.size();i++) {
