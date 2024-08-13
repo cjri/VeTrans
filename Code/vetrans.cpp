@@ -56,7 +56,6 @@ int main(int argc, const char **argv) {
 		OutputReconstructHaplotypes(haplotypes,pre_freqs,post_freqs,best_bic);
 
     } else if (method.compare("reconstruct_haplotypes_multi")==0) {
-        cout << "Reconstruct Haplotypes Multi\n";
         
         //Designed for more general haplotype reconstruction
         ReconstructHaplotypesMulti (p,best_bic,haplotypes,multi_freqs);
