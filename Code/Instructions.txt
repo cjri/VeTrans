@@ -86,7 +86,7 @@ This code has the following options in addition to those of the find_haplotypes 
 
 --n_haps: Default 1.  Indicates the number of haplotypes that are to be inferred from the data, from 1 upwards.
 
---read_hap: Default 0.  Setting to 1 reads in a set of haplotypes and performs an optimisation only of the frequencies of these haplotypes.
+--read_hap: Default 0.  Setting to 1 reads in a set of haplotypes and performs an optimisation only of the frequencies of these haplotypes.  The initial freuquencies at the beginning of the optimisation are generated at random.
 
 --fullhaps_in: Default ‘Haps.in’.  File containing the haplotypes to be used in the inference process.  Used when read_hap is set to 1.
 

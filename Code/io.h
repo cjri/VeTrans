@@ -15,6 +15,7 @@ void GetVariantDataMulti (run_params p, vector<mhap>& haps);
 void GetFullHaplotypes (run_params p, vector<haplo>& full_haps);
 void GetPrevHaplotypes (run_params p, vector<haplo>& full_haps);
 void GetFullHaplotypesFreq (run_params p, vector<haplo>& full_haps, vector<double>& freq_pre, vector<double>& freq_post);
+void GetFullHaplotypesFreqMulti (run_params p, vector<haplo>& full_haps, vector< vector<double> >& hap_freqs_multi);
 void PrintResampleMulti (vector< vector< vector<mhap> > >& all_hap_data_sets);
 void PrintSample (int i, vector<mhap>& hap_data);
 void PrintVariances (run_params p, vector<double>& pre_var, vector<double>& post_var);

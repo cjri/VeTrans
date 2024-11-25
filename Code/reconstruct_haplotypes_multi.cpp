@@ -105,6 +105,7 @@ int ReconstructHaplotypesMulti (run_params p, double& best_bic, vector<haplo>& h
 		haplotypes=full_haps;
 		return 0;
 	}
+    
 	
 	//Generate initial set of full haplotypes - begin full optimisation process
     if (p.read_prev==0) {
@@ -155,13 +156,20 @@ int ReconstructHaplotypesMulti (run_params p, double& best_bic, vector<haplo>& h
     vector< vector<double> > hap_freqs_multi;
     vector< vector<double> > hap_freqs_best_multi;
     
+    if (p.read_restart==1) {
+        cout << "Read restart file: Discard randomly generated haplotypes\n";
+        full_haps.clear();
+        GetFullHaplotypesFreqMulti (p,full_haps,hap_freqs_multi);
+    }
+        
+        
+        
 	double run_time=0;
     vector< vector< vector<double> > > multi_store;
 	vector<double> logs_store;
 	int ct=1;
 	
 	for (int hapset=0;hapset<p.hap_its;hapset++) { //Loop over sets of full haplotypes
-        //cout << "Hapset " << hapset << "\n";
 		ct=CheckTime (p,timer_s);
 		if (ct==0) {
 			return 0;

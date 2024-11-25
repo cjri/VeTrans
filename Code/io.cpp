@@ -14,8 +14,11 @@ void GetOptions (run_params& p, int argc, const char **argv) {
 	p.freq_its=10000;
 	p.freq_term=1000;
 	p.freq_rep=1;
+    p.change_rep=1;
 	p.run_time=1000000;
 	p.read_hap=0;
+    p.read_prev=0;
+    p.read_restart=0;
 	p.err=0;
 	p.sample_reps=100;
 	p.suppress_output=0;
@@ -33,6 +36,7 @@ void GetOptions (run_params& p, int argc, const char **argv) {
 	p.like_name="Likelihoods.out";
 	p.fullhap_in="Inferred_haplotypes.out";
     p.prev_in="Previous_haps.in";
+    p.restart_in="Last_calculation.in";
 	p.verb=0;
 	int x=2;
 	while (x < argc && (argv[x][0]=='-')) {
@@ -61,6 +65,9 @@ void GetOptions (run_params& p, int argc, const char **argv) {
 		} else if (p_switch.compare("--freq_rep")==0) {
 			x++;
 			p.freq_rep=atoi(argv[x]);
+        } else if (p_switch.compare("--change_rep")==0) {
+            x++;
+            p.change_rep=atoi(argv[x]);
 		} else if (p_switch.compare("--verb")==0) {
 			x++;
 			p.verb=atoi(argv[x]);
@@ -102,6 +109,12 @@ void GetOptions (run_params& p, int argc, const char **argv) {
         } else if (p_switch.compare("--read_previous_file")==0) {
             x++;
             p.prev_in=argv[x];
+        } else if (p_switch.compare("--read_restart")==0) {
+            x++;
+            p.read_restart=atoi(argv[x]);
+        } else if (p_switch.compare("--read_restart_file")==0) {
+            x++;
+            p.restart_in=argv[x];
 		} else if (p_switch.compare("--haps_in")==0) {
 			x++;
 			p.fullhap_in=argv[x];
@@ -297,6 +310,56 @@ void GetPrevHaplotypes (run_params p, vector<haplo>& full_haps) {
         full_haps.push_back(h);
         hap_file.ignore(numeric_limits<streamsize>::max(), '\n');
     }
+}
+
+void GetFullHaplotypesFreqMulti (run_params p, vector<haplo>& full_haps, vector< vector<double> >& hap_freqs_multi) {
+    ifstream hap_file;
+    //cout << "Hap in " << p.hap_in << "\n";
+    hap_file.open(p.restart_in);
+    if (p.verb==1) {
+        cout << "Read from file " << p.restart_in << "\n";
+    }
+    string fullhap;
+    double freq;
+    for (int i=0;i<1000000;i++) {
+        if (!(hap_file >> fullhap)) break;
+        if (fullhap.compare("Final")!=0) {
+            haplo h;
+            h.st=fullhap;
+            if (p.verb==1) {
+                cout << h.st << " ";
+            }
+            for (int i=0;i<fullhap.length();i++) {
+                h.seq.push_back(fullhap[i]);
+            }
+            full_haps.push_back(h);
+            vector<double> freqs;
+            for (int s=0;s<p.n_samples;s++) {
+                if (!(hap_file >> freq)) break;
+                if (p.verb==1) {
+                    cout << freq << " ";
+                }
+                freqs.push_back(freq);
+            }
+            if (p.verb==1) {
+                cout << "\n";
+            }
+            hap_freqs_multi.push_back(freqs);
+        } else {
+            if (!(hap_file >> fullhap)) break;
+            if (!(hap_file >> fullhap)) break;
+        }
+    
+    }
+    /*if (p.verb==1) {
+        for (int i=0;i<hap_freqs_multi.size();i++) {
+            cout << full_haps[i].st << " ";
+            for (int j=0;j<hap_freqs_multi[i].size();j++) {
+                cout << hap_freqs_multi[i][j] << " ";
+            }
+            cout << "\n";
+        }
+    }*/
 }
 
 

@@ -1,6 +1,6 @@
 //Applies linear model to unobserved haplotypes.  Retains loci for which there is no variation.
 
-//Efficiency: Around 72% of time in Dirichlet Multinomial likelihood calculation.  Not too shabby
+//Efficiency: Around 72% of time in Dirichlet Multinomial likelihood calculation.  Not too bad
 
 #include <iostream>
 #include <vector>

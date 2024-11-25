@@ -376,22 +376,24 @@ int ChangeHaplotypeRandom (run_params p, vector<haplo>& full_haps, vector<haplo>
 		//cout << "Change haplotype\n";
 		int samehaps=1;
 		while (samehaps==1) {
-			int samehap=1;
-			while (samehap==1) {
-				//Choose a random haplotype
-				int r=(gsl_rng_uniform(rgen)*(full_haps.size()-1)); //Last haplotype is the X set
-				vector<char> orig=full_haps[r].seq;
-				//Make a random change - overwrite some loci with a partial haplotype
-				int s=(gsl_rng_uniform(rgen)*hap_data_sets.size()); //Random set
-				int h=(gsl_rng_uniform(rgen)*hap_data_sets[s].size()); //Random partial haplotype in set.  N.B. Could skew random choice here?
-				for (int j=0;j<hap_data_sets[s][h].n_loci.size();j++) {
-					full_haps[r].seq[hap_data_sets[s][h].n_loci[j]]=hap_data_sets[s][h].st[j];
-				}
-				if (full_haps[r].seq!=orig) {
-					samehap=0;
-				}
-			}
-			
+            for (int i=0;i<p.change_rep;i++) {
+                int samehap=1;
+                while (samehap==1) {
+                    //Choose a random haplotype
+                    int r=(gsl_rng_uniform(rgen)*(full_haps.size()-1)); //Last haplotype is the X set
+                    vector<char> orig=full_haps[r].seq;
+                    //Make a random change - overwrite some loci with a partial haplotype
+                    int s=(gsl_rng_uniform(rgen)*hap_data_sets.size()); //Random set
+                    int h=(gsl_rng_uniform(rgen)*hap_data_sets[s].size()); //Random partial haplotype in set.  N.B. Could skew random choice here?
+                    for (int j=0;j<hap_data_sets[s][h].n_loci.size();j++) {
+                        full_haps[r].seq[hap_data_sets[s][h].n_loci[j]]=hap_data_sets[s][h].st[j];
+                    }
+                    if (full_haps[r].seq!=orig) {
+                        samehap=0;
+                    }
+                }
+            }
+            
 			//Check haplotypes are unique in new model
 			CheckUniqueHaplotypesSplit (hap_data_sets,full_haps,rgen);
 			
